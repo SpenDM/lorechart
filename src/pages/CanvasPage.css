@@ -1,0 +1,23 @@
+.toolbarSection {
+    min-height: 100vh;
+    font-size: calc(10px + 2vmin);
+}
+
+.canvas {
+    min-height: 100vh;
+    font-size: calc(10px + 2vmin);
+    display: "flex";
+    align-items: "center";
+}
+
+.toolbar {
+    background-color: #1c2c2e;
+}
+
+.icon {
+    color: rgb(107, 107, 107);
+}
+
+.divider {
+    color: rgb(70, 70, 70);
+}
