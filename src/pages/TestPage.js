@@ -1,15 +1,15 @@
 import React from 'react'
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import HomeIcon from '@material-ui/icons/Home';
-import Toolbar from '../components/Toolbar';
-import MapIcon from '@material-ui/icons/Map';
+// import HomeIcon from '@material-ui/icons/Home';
+// import Toolbar from '../components/Toolbar';
+// import MapIcon from '@material-ui/icons/Map';
 import MenuIcon from '@material-ui/icons/Menu';
 import Draggable from 'react-draggable';
 
 import useFitText from "use-fit-text";
 
-import { EditText, EditTextarea } from 'react-edit-text';
+// import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
 
 

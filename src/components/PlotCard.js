@@ -11,6 +11,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+import CardTitleForm from './CardTitleForm';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 120,
@@ -29,7 +31,11 @@ const useStyles = makeStyles((theme) => ({
 
 const PlotCard = ( {id, startX, startY, handleMouseOver, handleMouseLeave, handleCardRClick} ) => {
   const classes = useStyles();
+
   const [expanded, setExpanded] = React.useState(false);
+  const [isEditingTitle, setIsEditingTitle] = React.useState(false);
+  const [cardTitleText, setCardTitleText] = React.useState("Defaux text");
+  const [isClickWithoutDrag, setIsClickWithoutDrag] = React.useState(false);
 
   const initialPos = {
     x: startX,
@@ -39,6 +45,37 @@ const PlotCard = ( {id, startX, startY, handleMouseOver, handleMouseLeave, handl
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const handleMouseDownOnText = () => {
+    setIsClickWithoutDrag(true);
+  }
+
+  const handleCardDrag = () => {
+    console.log("drag");
+    setIsClickWithoutDrag(false);
+  }
+
+  const handleTitleLClick = () => {
+    console.log("l click")
+
+    if (isClickWithoutDrag)  (
+      handleClickWithoutDrag()
+    )
+  }
+
+  const handleClickWithoutDrag = () => {
+    if (!isEditingTitle) {
+      setIsEditingTitle(true)
+
+      setCardTitleText(<div>
+        <CardTitleForm
+          cardTitleText={cardTitleText}
+          setCardTitleText={setCardTitleText}
+          setIsEditingTitle={setIsEditingTitle}
+        />
+      </div>)
+    }
+  }
 
   return (
       // onStart: This is called when dragging event invokes.
@@ -53,11 +90,13 @@ const PlotCard = ( {id, startX, startY, handleMouseOver, handleMouseLeave, handl
     <Draggable 
       bounds="parent"
       defaultPosition={initialPos}
+      draggable={true}
+      onDrag={handleCardDrag}
     >
         <Card 
           className={classes.root}
           style={{
-            position: "absolute",
+            position: "absolute"
           }}
 
           onMouseOver={() => {handleMouseOver(id)}}
@@ -65,7 +104,10 @@ const PlotCard = ( {id, startX, startY, handleMouseOver, handleMouseLeave, handl
           onContextMenu={() => handleCardRClick(id)}
         >
             <CardHeader
-                title="League of Warlocks"
+                title={<div onMouseDown={handleMouseDownOnText} onClick={handleTitleLClick}>
+                    {cardTitleText}
+                  </div>
+                  }
                 className={classes.root}
             />
             <CardActions disableSpacing>

@@ -1,12 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { NavLink } from 'react-router-dom';
 
 import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import MapIcon from '@material-ui/icons/Map';

@@ -1,8 +1,9 @@
 import React from 'react'
 import { useState } from 'react';
-import PlotCard from '../components/PlotCard'
+import PlotCard from '../components/PlotCard';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import NameForm from './NameForm';
 
 const NONE = "none";
 
@@ -25,11 +26,12 @@ const Canvas = () => {
 
     const canvasStyle = useStyles();
 
-    // R Click: Create Card if Above Empty Space
+    // R Click on Canvas: Card creation
     const handleCanvasRClick = (e) => {
         // Don't show context menu
         e.preventDefault();
 
+        // Create card if above empty space
         if (objBelowMouse === NONE) {
 
             // Get mouse position
@@ -70,9 +72,9 @@ const Canvas = () => {
         });
     }
 
-    // Right Click Card: Delete Card
+    // Right Click on Card: Delete Card
     const handleCardRClick = (cardId) => {
-        // TODO -- ADD WARNING
+        // TODO -- ADD WARNING or just allow Ctrl+Z undo
 
         // Remove card 
         setCardDict(prevCardDict => {
@@ -108,6 +110,7 @@ const Canvas = () => {
             className={canvasStyle.root}
             onContextMenu={handleCanvasRClick}
         >
+            <NameForm/>
             {displayCards(cardDict)}
         </Paper>
     )

@@ -2,7 +2,6 @@ import React from 'react'
 import '../App.css';
 import './MainPage.css'
 import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button';
 import MenuButton from '../components/MenuButton'
 import Public from '@material-ui/icons/Public';
 
@@ -35,7 +34,8 @@ const MainPage = () => {
                             <MenuButton url="/storyboard" buttonText="Create Story"/>
                         </Grid>
                         <Grid item>
-                            <div>
+                            <MenuButton url="/storyboard" buttonText="Load Story"/>
+                            {/* <div>
                                 <Button
                                     variant="outlined"
                                     color="inherit"
@@ -43,7 +43,7 @@ const MainPage = () => {
                                 >
                                     Load Story
                                 </Button>
-                            </div>
+                            </div> */}
                         </Grid>
                         <Grid item>
                             <MenuButton url="/storyboard" buttonText="Tutorial"/>
