@@ -1,0 +1,62 @@
+<svg viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect x="0" y="0" width="960" height="560" fill="#f8f9fb"/>
+  <text x="480" y="34" text-anchor="middle" font-size="13" letter-spacing="2" fill="#9aa4b2">PLOT CARD — collapsed vs expanded (Location node is identical)</text>
+
+  <!-- COLLAPSED -->
+  <text x="170" y="74" text-anchor="middle" font-size="12" fill="#475569" font-weight="600">COLLAPSED (default)</text>
+  <g>
+    <rect x="80" y="92" width="180" height="150" rx="12" fill="#ffffff" stroke="#cbd2dc" stroke-width="1.5"/>
+    <rect x="80" y="92" width="180" height="34" rx="12" fill="#eef2f7"/>
+    <text x="96" y="114" font-size="12" fill="#475569">Editable title…</text>
+    <rect x="96" y="138" width="148" height="66" rx="8" fill="#e8ecf1" stroke="#cbd2dc" stroke-dasharray="4 3"/>
+    <text x="170" y="175" text-anchor="middle" font-size="11" fill="#94a3b8">image (click to set)</text>
+    <circle cx="236" cy="222" r="13" fill="#eaf1ff" stroke="#3b82f6"/>
+    <text x="236" y="227" text-anchor="middle" font-size="12" fill="#2563eb">🔗</text>
+    <text x="170" y="232" text-anchor="middle" font-size="10" fill="#94a3b8">click card body to expand ▾</text>
+  </g>
+
+  <!-- EXPANDED -->
+  <text x="620" y="74" text-anchor="middle" font-size="12" fill="#475569" font-weight="600">EXPANDED (on click)</text>
+  <g>
+    <rect x="450" y="92" width="340" height="404" rx="12" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="450" y="92" width="340" height="34" rx="12" fill="#eef2f7"/>
+    <text x="468" y="114" font-size="12" fill="#475569">Editable title…</text>
+
+    <rect x="468" y="138" width="304" height="92" rx="8" fill="#e8ecf1" stroke="#cbd2dc" stroke-dasharray="4 3"/>
+    <text x="620" y="188" text-anchor="middle" font-size="11" fill="#94a3b8">image (click to upload / replace)</text>
+
+    <text x="468" y="252" font-size="10" letter-spacing="1" fill="#9aa4b2">DESCRIPTION</text>
+    <rect x="468" y="260" width="304" height="74" rx="8" fill="#fbfcfe" stroke="#cbd2dc"/>
+    <text x="478" y="280" font-size="11" fill="#94a3b8">Editable multi-line description…</text>
+
+    <text x="468" y="356" font-size="10" letter-spacing="1" fill="#9aa4b2">MAP VIEW REFERENCES</text>
+    <text x="480" y="378" font-size="11" fill="#334155">•  Riverwatch Keep ↗</text>
+    <text x="480" y="398" font-size="11" fill="#334155">•  The Sunken Road ↗</text>
+    <text x="478" y="396" font-size="9" fill="#94a3b8"></text>
+
+    <g>
+      <rect x="468" y="410" width="170" height="28" rx="14" fill="#eaf1ff" stroke="#3b82f6"/>
+      <text x="553" y="428" text-anchor="middle" font-size="11" fill="#2563eb">＋ link new Map item</text>
+    </g>
+
+    <g>
+      <rect x="468" y="450" width="150" height="30" rx="15" fill="#eaf1ff" stroke="#3b82f6"/>
+      <text x="495" y="469" text-anchor="middle" font-size="13" fill="#2563eb">🔗</text>
+      <text x="560" y="469" text-anchor="middle" font-size="11" fill="#2563eb">link to card</text>
+    </g>
+  </g>
+
+  <!-- Annotations -->
+  <g font-size="11" fill="#64748b">
+    <line x1="638" y1="388" x2="800" y2="388" stroke="#cbd2dc" stroke-dasharray="3 3"/>
+    <text x="806" y="380">Bullet refs → click</text>
+    <text x="806" y="394">opens Map View at</text>
+    <text x="806" y="408">that Location</text>
+
+    <line x1="638" y1="424" x2="800" y2="424" stroke="#cbd2dc" stroke-dasharray="3 3"/>
+    <text x="806" y="428">Enters Map selection mode</text>
+
+    <line x1="618" y1="465" x2="800" y2="465" stroke="#cbd2dc" stroke-dasharray="3 3"/>
+    <text x="806" y="469">Draws relationship line</text>
+  </g>
+</svg>

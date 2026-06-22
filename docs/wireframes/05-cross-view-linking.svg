@@ -1,0 +1,44 @@
+<svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <pattern id="dots5" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#d7dde5"/>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="960" height="600" fill="#f8f9fb"/>
+  <rect x="0" y="0" width="960" height="600" fill="url(#dots5)"/>
+  <text x="540" y="34" text-anchor="middle" font-size="13" letter-spacing="2" fill="#9aa4b2">CROSS-VIEW LINKING — selection mode triggered from a Plot Card</text>
+
+  <!-- Selection-mode banner -->
+  <g>
+    <rect x="180" y="56" width="600" height="40" rx="20" fill="#fffaeb" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="206" y="81" font-size="13" fill="#92400e">⚑  Select a Location to link to Plot Card "King's betrayal"</text>
+    <rect x="690" y="64" width="76" height="24" rx="12" fill="#fff" stroke="#f59e0b"/>
+    <text x="728" y="81" text-anchor="middle" font-size="11" fill="#92400e">Cancel ✕</text>
+  </g>
+
+  <!-- Map with selectable (highlighted) markers -->
+  <g>
+    <rect x="180" y="116" width="600" height="424" rx="8" fill="#e9efe6" stroke="#bcc8b6" stroke-width="1.5"/>
+    <text x="480" y="335" text-anchor="middle" font-size="12" fill="#9fb094">map image — all Locations pulse / are clickable</text>
+  </g>
+
+  <!-- highlighted markers -->
+  <g>
+    <circle cx="360" cy="230" r="16" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="360" cy="230" r="9" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+    <rect x="380" y="220" width="120" height="22" rx="6" fill="#fff" stroke="#f59e0b"/>
+    <text x="390" y="235" font-size="11" fill="#475569">Riverwatch Keep</text>
+  </g>
+  <g>
+    <circle cx="600" cy="430" r="16" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="600" cy="430" r="9" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+    <rect x="620" y="420" width="120" height="22" rx="6" fill="#fff" stroke="#f59e0b"/>
+    <text x="630" y="435" font-size="11" fill="#475569">The Sunken Road</text>
+  </g>
+
+  <!-- Flow caption -->
+  <g font-size="12" fill="#475569">
+    <text x="200" y="568">Flow:  Plot Card ▸ "＋ link new Map item"  →  switch to Map View in selection mode  →  click a Location</text>
+    <text x="200" y="586" fill="#2563eb">→ Location title added to the card's bullet list (and the card added to the Location's list) → return to Plot View</text>
+  </g>
+</svg>
