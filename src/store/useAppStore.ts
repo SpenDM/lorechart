@@ -1,8 +1,9 @@
 import { create } from 'zustand'
-import type { Project, PlotCard, Location, RelationshipLink, Viewport } from '../types/model'
+import type { Project, PlotCard, Location, RelationshipLink, Viewport, ImageRef } from '../types/model'
 import { SCHEMA_VERSION } from '../types/model'
 import { id as newId } from '../lib/id'
-import { fileToImageRef, revokeObjectURL } from '../lib/images'
+import { fileToImageRef, revokeObjectURL, exportBlobs, importBlobs } from '../lib/images'
+import { migrateProject } from '../db/migrations'
 import {
   scheduleSave,
   saveProjectNow,
@@ -144,13 +145,79 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   async exportProject() {
-    // T7.1 — Phase 7
-    console.warn('exportProject not yet implemented')
+    const { project } = get()
+    if (!project) return
+
+    const refs: ImageRef[] = [
+      ...(project.map.background ? [project.map.background] : []),
+      ...project.plot.cards.flatMap(c => c.image ? [c.image] : []),
+      ...project.map.locations.flatMap(l => l.image ? [l.image] : []),
+    ]
+
+    const blobs = await exportBlobs(refs)
+    const envelope = { schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), blobs, project }
+    const url = URL.createObjectURL(new Blob([JSON.stringify(envelope, null, 2)], { type: 'application/json' }))
+    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_') || 'project'}.json`
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   },
 
-  async importProject(_file) {
-    // T7.2 — Phase 7
-    console.warn('importProject not yet implemented')
+  async importProject(file) {
+    let envelope: {
+      schemaVersion: number
+      blobs?: Record<string, { data: string; mime: string }>
+      project: Project
+    }
+    try {
+      envelope = JSON.parse(await file.text())
+    } catch {
+      alert('Could not parse file — make sure it is a Plot & Map export.')
+      return
+    }
+
+    if (!envelope?.project || typeof envelope.schemaVersion !== 'number') {
+      alert('Invalid Plot & Map export file.')
+      return
+    }
+    if (envelope.schemaVersion > SCHEMA_VERSION) {
+      alert(`This file requires a newer version of Plot & Map (schema v${envelope.schemaVersion}).`)
+      return
+    }
+
+    const idMap = await importBlobs(envelope.blobs ?? {})
+    const remapRef = (ref: ImageRef | null): ImageRef | null => {
+      if (!ref) return null
+      const newBlobId = idMap.get(ref.blobId)
+      return newBlobId ? { ...ref, blobId: newBlobId } : ref
+    }
+
+    const now = new Date().toISOString()
+    const raw = migrateProject(envelope.project)
+    const project: Project = {
+      ...raw,
+      id: newId(),
+      createdAt: now,
+      updatedAt: now,
+      plot: {
+        ...raw.plot,
+        cards: raw.plot.cards.map(c => ({ ...c, image: remapRef(c.image) })),
+      },
+      map: {
+        ...raw.map,
+        background: remapRef(raw.map.background),
+        locations: raw.map.locations.map(l => ({ ...l, image: remapRef(l.image) })),
+      },
+    }
+
+    await saveProjectNow(project)
+    await setLastActiveProjectId(project.id)
+    set({ project, activeView: 'plot', expandedNodeId: null, selectedLinkId: null, linking: null, linkingFrom: null })
   },
 
   addPlotCard(position) {
