@@ -11,12 +11,13 @@ import {
   type Edge,
 } from '@xyflow/react'
 import { useAppStore } from '../store/useAppStore'
-import { selectPlotViewport, selectLinkingFrom } from '../store/selectors'
+import { selectPlotViewport, selectLinkingFrom, selectFocusedNodeId } from '../store/selectors'
 import PlotCardNode from '../components/nodes/PlotCardNode'
 import RelationshipEdge from '../components/edges/RelationshipEdge'
 import Toolbar from '../components/Toolbar/Toolbar'
 import ToolbarButton from '../components/Toolbar/ToolbarButton'
 import ProjectSwitcherModal from '../components/overlays/ProjectSwitcherModal'
+import LinkingBanner from '../components/overlays/LinkingBanner'
 
 const nodeTypes = { plotCard: PlotCardNode }
 const edgeTypes = { relationship: RelationshipEdge }
@@ -27,6 +28,7 @@ function PlotViewInner() {
   const linkIdsKey = useAppStore(s => s.project?.plot.links.map(l => l.id).join(',') ?? '')
   const viewport = useAppStore(selectPlotViewport)
   const linkingFrom = useAppStore(selectLinkingFrom)
+  const focusedNodeId = useAppStore(selectFocusedNodeId)
 
   const addPlotCard = useAppStore(s => s.addPlotCard)
   const goTo = useAppStore(s => s.goTo)
@@ -35,7 +37,7 @@ function PlotViewInner() {
   const cancelSameViewLink = useAppStore(s => s.cancelSameViewLink)
 
   const [showSwitcher, setShowSwitcher] = useState(false)
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, setCenter } = useReactFlow()
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
@@ -66,17 +68,28 @@ function PlotViewInner() {
     })))
   }, [linkIdsKey, projectId, setEdges])
 
-  // ESC: cancel link mode or deselect edge — reads fresh state, no closure staleness.
+  // ESC: cancel any link mode or deselect edge.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       const s = useAppStore.getState()
+      if (s.linking !== null) s.cancelLinking()
       if (s.linkingFrom !== null) s.cancelSameViewLink()
       if (s.selectedLinkId !== null) useAppStore.setState({ selectedLinkId: null })
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  // Center viewport on a node when navigating via cross-ref.
+  useEffect(() => {
+    if (!focusedNodeId) return
+    const card = useAppStore.getState().project?.plot.cards.find(c => c.id === focusedNodeId)
+    if (card) {
+      setCenter(card.position.x + 96, card.position.y + 40, { zoom: 1, duration: 400 })
+    }
+    useAppStore.setState({ focusedNodeId: null })
+  }, [focusedNodeId, setCenter])
 
   const handleNodeDragStop = useCallback((_: MouseEvent | TouchEvent, node: Node) => {
     useAppStore.getState().updatePlotCard(node.id, { position: node.position })
@@ -145,12 +158,15 @@ function PlotViewInner() {
         bottomSlot={plotBottomSlot}
       />
 
-      {/* Link mode banner */}
+      {/* Cross-view linking banner */}
+      <LinkingBanner />
+
+      {/* Same-view link mode banner */}
       {linkingFrom && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-blue-600 text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none">
-          <span>Click another card to create a relationship — or</span>
+        <div className="absolute top-[52px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-blue-600 text-white text-sm px-5 py-2.5 rounded-full shadow-lg">
+          <span>Click another card to create a relationship</span>
           <button
-            className="underline hover:no-underline pointer-events-auto"
+            className="underline hover:no-underline"
             onClick={cancelSameViewLink}
           >
             Cancel

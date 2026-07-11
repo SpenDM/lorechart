@@ -9,12 +9,13 @@ import {
   type Node,
 } from '@xyflow/react'
 import { useAppStore } from '../store/useAppStore'
-import { selectMapViewport } from '../store/selectors'
+import { selectMapViewport, selectFocusedNodeId } from '../store/selectors'
 import MapImageNode from '../components/nodes/MapImageNode'
 import LocationNode from '../components/nodes/LocationNode'
 import Toolbar from '../components/Toolbar/Toolbar'
 import ToolbarButton from '../components/Toolbar/ToolbarButton'
 import ProjectSwitcherModal from '../components/overlays/ProjectSwitcherModal'
+import LinkingBanner from '../components/overlays/LinkingBanner'
 
 const nodeTypes = { mapImage: MapImageNode, location: LocationNode }
 
@@ -24,6 +25,8 @@ function MapViewInner() {
   const locationIdsKey = useAppStore(s => s.project?.map.locations.map(l => l.id).join(',') ?? '')
   const viewport = useAppStore(selectMapViewport)
 
+  const focusedNodeId = useAppStore(selectFocusedNodeId)
+
   const addLocation = useAppStore(s => s.addLocation)
   const goTo = useAppStore(s => s.goTo)
   const setMapViewport = useAppStore(s => s.setMapViewport)
@@ -31,7 +34,7 @@ function MapViewInner() {
   const exportProject = useAppStore(s => s.exportProject)
 
   const [showSwitcher, setShowSwitcher] = useState(false)
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, setCenter } = useReactFlow()
   const bgInputRef = useRef<HTMLInputElement>(null)
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
@@ -97,16 +100,27 @@ function MapViewInner() {
     e.target.value = ''
   }, [setBackgroundImage])
 
-  // ESC: collapse expanded node.
+  // ESC: cancel cross-view linking or collapse expanded node.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        useAppStore.setState({ expandedNodeId: null })
-      }
+      if (e.key !== 'Escape') return
+      const s = useAppStore.getState()
+      if (s.linking !== null) s.cancelLinking()
+      else useAppStore.setState({ expandedNodeId: null })
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  // Center viewport on a location when navigating via cross-ref.
+  useEffect(() => {
+    if (!focusedNodeId) return
+    const loc = useAppStore.getState().project?.map.locations.find(l => l.id === focusedNodeId)
+    if (loc) {
+      setCenter(loc.position.x + 13, loc.position.y + 13, { zoom: 1, duration: 400 })
+    }
+    useAppStore.setState({ focusedNodeId: null })
+  }, [focusedNodeId, setCenter])
 
   const mapBottomSlot = (
     <>
@@ -146,6 +160,8 @@ function MapViewInner() {
         className="hidden"
         onChange={handleBgFileChange}
       />
+
+      <LinkingBanner />
 
       {showSwitcher && <ProjectSwitcherModal onClose={() => setShowSwitcher(false)} />}
     </div>
