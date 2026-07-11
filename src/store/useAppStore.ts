@@ -28,6 +28,7 @@ export interface AppState {
   expandedNodeId: string | null
   selectedLinkId: string | null
   linking: LinkingContext | null
+  linkingFrom: string | null  // same-view plot card link mode
 
   // project lifecycle
   newProject(name: string): Promise<void>
@@ -60,6 +61,10 @@ export interface AppState {
   cancelLinking(): void
   addCrossRef(cardId: string, locationId: string): void
   removeCrossRef(cardId: string, locationId: string): void
+
+  // same-view link mode
+  beginSameViewLink(sourceId: string): void
+  cancelSameViewLink(): void
 
   // navigation
   goTo(view: 'plot' | 'map', focusNodeId?: string): void
@@ -102,6 +107,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   expandedNodeId: null,
   selectedLinkId: null,
   linking: null,
+  linkingFrom: null,
 
   async newProject(name) {
     const project = emptyProject(name)
@@ -370,6 +376,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     })
     set({ project: updated })
     scheduleSave(updated)
+  },
+
+  beginSameViewLink(sourceId) {
+    set({ linkingFrom: sourceId, expandedNodeId: null, selectedLinkId: null })
+  },
+
+  cancelSameViewLink() {
+    set({ linkingFrom: null })
   },
 
   goTo(view, focusNodeId) {

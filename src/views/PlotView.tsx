@@ -11,7 +11,7 @@ import {
   type Edge,
 } from '@xyflow/react'
 import { useAppStore } from '../store/useAppStore'
-import { selectPlotViewport } from '../store/selectors'
+import { selectPlotViewport, selectLinkingFrom } from '../store/selectors'
 import PlotCardNode from '../components/nodes/PlotCardNode'
 import RelationshipEdge from '../components/edges/RelationshipEdge'
 import Toolbar from '../components/Toolbar/Toolbar'
@@ -26,11 +26,13 @@ function PlotViewInner() {
   const cardIdsKey = useAppStore(s => s.project?.plot.cards.map(c => c.id).join(',') ?? '')
   const linkIdsKey = useAppStore(s => s.project?.plot.links.map(l => l.id).join(',') ?? '')
   const viewport = useAppStore(selectPlotViewport)
+  const linkingFrom = useAppStore(selectLinkingFrom)
 
   const addPlotCard = useAppStore(s => s.addPlotCard)
   const goTo = useAppStore(s => s.goTo)
   const setPlotViewport = useAppStore(s => s.setPlotViewport)
   const exportProject = useAppStore(s => s.exportProject)
+  const cancelSameViewLink = useAppStore(s => s.cancelSameViewLink)
 
   const [showSwitcher, setShowSwitcher] = useState(false)
   const { screenToFlowPosition } = useReactFlow()
@@ -39,7 +41,6 @@ function PlotViewInner() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   // Re-sync node list when cards are added/removed or project changes.
-  // Preserves RF-internal state (position, selection) for existing nodes.
   useEffect(() => {
     const cards = useAppStore.getState().project?.plot.cards ?? []
     setNodes(prev => {
@@ -65,21 +66,48 @@ function PlotViewInner() {
     })))
   }, [linkIdsKey, projectId, setEdges])
 
-  // Write final position to store on drag stop so autosave picks it up.
+  // ESC: cancel link mode or deselect edge — reads fresh state, no closure staleness.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      const s = useAppStore.getState()
+      if (s.linkingFrom !== null) s.cancelSameViewLink()
+      if (s.selectedLinkId !== null) useAppStore.setState({ selectedLinkId: null })
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   const handleNodeDragStop = useCallback((_: MouseEvent | TouchEvent, node: Node) => {
     useAppStore.getState().updatePlotCard(node.id, { position: node.position })
   }, [])
 
-  // Persist viewport after pan/zoom ends.
   const handleMoveEnd = useCallback((_: MouseEvent | TouchEvent | null, vp: { x: number; y: number; zoom: number }) => {
     setPlotViewport(vp)
   }, [setPlotViewport])
 
-  // Place new card near the viewport centre.
   const handleAddCard = useCallback(() => {
     const pos = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
     addPlotCard(pos)
   }, [addPlotCard, screenToFlowPosition])
+
+  // Edge click → select it.
+  const handleEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
+    useAppStore.setState({ selectedLinkId: edge.id })
+  }, [])
+
+  // Pane click → clear edge selection and cancel link mode.
+  const handlePaneClick = useCallback(() => {
+    useAppStore.setState({ selectedLinkId: null })
+    useAppStore.getState().cancelSameViewLink()
+  }, [])
+
+  // Node click → clear edge selection (popover closes).
+  const handleNodeClick = useCallback(() => {
+    if (useAppStore.getState().selectedLinkId !== null) {
+      useAppStore.setState({ selectedLinkId: null })
+    }
+  }, [])
 
   const plotBottomSlot = (
     <>
@@ -98,6 +126,9 @@ function PlotViewInner() {
         onEdgesChange={onEdgesChange}
         onNodeDragStop={handleNodeDragStop}
         onMoveEnd={handleMoveEnd}
+        onEdgeClick={handleEdgeClick}
+        onPaneClick={handlePaneClick}
+        onNodeClick={handleNodeClick}
         defaultViewport={viewport}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
@@ -113,6 +144,19 @@ function PlotViewInner() {
         onSave={() => exportProject()}
         bottomSlot={plotBottomSlot}
       />
+
+      {/* Link mode banner */}
+      {linkingFrom && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-blue-600 text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none">
+          <span>Click another card to create a relationship — or</span>
+          <button
+            className="underline hover:no-underline pointer-events-auto"
+            onClick={cancelSameViewLink}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {showSwitcher && <ProjectSwitcherModal onClose={() => setShowSwitcher(false)} />}
     </div>

@@ -14,3 +14,4 @@ export const selectLinking = (s: AppState) => s.linking
 export const selectFocusedNodeId = (s: AppState) => s.focusedNodeId
 export const selectSetPlotViewport = (s: AppState) => s.setPlotViewport
 export const selectSetMapViewport = (s: AppState) => s.setMapViewport
+export const selectLinkingFrom = (s: AppState) => s.linkingFrom

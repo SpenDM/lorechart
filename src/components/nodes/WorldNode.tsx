@@ -12,6 +12,7 @@ interface WorldNodeProps {
   onDescriptionChange: (desc: string) => void
   onImageUpload: (file: File) => void
   onChainLink: () => void
+  linkMode?: 'source' | 'target'
   crossRefLabel?: string
   crossRefSlot?: ReactNode
   onBeginCrossLink?: () => void
@@ -28,6 +29,7 @@ export default function WorldNode({
   onDescriptionChange,
   onImageUpload,
   onChainLink,
+  linkMode,
   crossRefLabel = 'MAP VIEW REFERENCES',
   crossRefSlot,
   onBeginCrossLink,
@@ -35,11 +37,23 @@ export default function WorldNode({
 }: WorldNodeProps) {
   const stop = (e: React.MouseEvent) => e.stopPropagation()
 
+  let borderClass: string
+  if (linkMode === 'source') {
+    borderClass = 'border-2 border-blue-500'
+  } else if (linkMode === 'target') {
+    borderClass = 'border border-blue-300'
+  } else if (isExpanded) {
+    borderClass = 'border border-blue-400'
+  } else {
+    borderClass = 'border border-slate-300'
+  }
+
+  const widthClass = isExpanded && !linkMode ? 'w-80' : 'w-48'
+  const cursorClass = linkMode ? 'cursor-crosshair' : 'cursor-pointer'
+
   return (
     <div
-      className={`bg-white rounded-xl border shadow-sm transition-[width,border-color] duration-150 cursor-pointer select-none ${
-        isExpanded ? 'border-blue-400 w-80' : 'border-slate-300 w-48'
-      }`}
+      className={`bg-white rounded-xl shadow-sm transition-[width,border-color] duration-150 select-none ${borderClass} ${widthClass} ${cursorClass}`}
       onClick={onToggleExpand}
     >
       {/* Header: title */}
@@ -87,14 +101,21 @@ export default function WorldNode({
         </div>
       )}
 
-      {/* Footer: hint + chain-link */}
+      {/* Footer: expand hint + chain-link button */}
       <div className="flex items-center justify-between px-3 py-2" onClick={stop}>
-        {!isExpanded && (
+        {!isExpanded && !linkMode && (
           <span className="text-[9px] text-slate-400">click to expand ▾</span>
+        )}
+        {linkMode === 'source' && (
+          <span className="text-[9px] text-blue-500">linking from…</span>
         )}
         <div className="ml-auto">
           <button
-            className="w-7 h-7 rounded-full bg-blue-50 border border-blue-400 flex items-center justify-center text-sm text-blue-600 hover:bg-blue-100 nodrag nopan"
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-sm nodrag nopan ${
+              linkMode === 'source'
+                ? 'bg-blue-500 border border-blue-600 text-white'
+                : 'bg-blue-50 border border-blue-400 text-blue-600 hover:bg-blue-100'
+            }`}
             onClick={e => { stop(e); onChainLink() }}
             title="Link to another card"
           >
