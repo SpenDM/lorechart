@@ -11,6 +11,7 @@ export default function PlotCardNode({ id }: NodeProps) {
   const linkingFrom = useAppStore(selectLinkingFrom)
   const linking = useAppStore(selectLinking)
   const updatePlotCard = useAppStore(s => s.updatePlotCard)
+  const removePlotCard = useAppStore(s => s.removePlotCard)
   const addLink = useAppStore(s => s.addLink)
   const beginLinking = useAppStore(s => s.beginLinking)
   const completeLinking = useAppStore(s => s.completeLinking)
@@ -54,6 +55,12 @@ export default function PlotCardNode({ id }: NodeProps) {
     updatePlotCard(id, { image: imageRef })
   }
 
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${card?.title || 'this card'}"? This will also remove all its relationship lines.`)) {
+      removePlotCard(id)
+    }
+  }
+
   if (!card) return null
 
   const crossRefSlot = (
@@ -79,6 +86,7 @@ export default function PlotCardNode({ id }: NodeProps) {
         onTitleChange={title => updatePlotCard(id, { title })}
         onDescriptionChange={description => updatePlotCard(id, { description })}
         onImageUpload={handleImageUpload}
+        onDelete={handleDelete}
         onChainLink={handleChainLink}
         linkMode={linkMode}
         crossRefLabel="MAP VIEW REFERENCES"

@@ -23,6 +23,7 @@ function MapViewInner() {
   const projectId = useAppStore(s => s.project?.id)
   const background = useAppStore(s => s.project?.map.background ?? null)
   const locationIdsKey = useAppStore(s => s.project?.map.locations.map(l => l.id).join(',') ?? '')
+  const hasContent = useAppStore(s => (s.project?.map.locations.length ?? 0) > 0 || !!s.project?.map.background)
   const viewport = useAppStore(selectMapViewport)
 
   const focusedNodeId = useAppStore(selectFocusedNodeId)
@@ -126,7 +127,7 @@ function MapViewInner() {
     <>
       <ToolbarButton onClick={handleAddLocation} title="New Location" variant="primary">＋</ToolbarButton>
       <ToolbarButton onClick={() => bgInputRef.current?.click()} title="Add background image">🖼</ToolbarButton>
-      <ToolbarButton onClick={() => goTo('plot')} title="Switch to Plot View">📋</ToolbarButton>
+      <ToolbarButton onClick={() => goTo('plot')} title="Switch to Plot View">▤</ToolbarButton>
     </>
   )
 
@@ -162,6 +163,16 @@ function MapViewInner() {
       />
 
       <LinkingBanner />
+
+      {/* Empty canvas hint */}
+      {!hasContent && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <div className="text-center">
+            <p className="text-slate-400 text-sm font-medium">No map content yet</p>
+            <p className="text-slate-400 text-xs mt-1">Click 🖼 to add a background image, or ＋ to place a Location</p>
+          </div>
+        </div>
+      )}
 
       {showSwitcher && <ProjectSwitcherModal onClose={() => setShowSwitcher(false)} />}
     </div>

@@ -11,6 +11,7 @@ interface WorldNodeProps {
   onTitleChange: (title: string) => void
   onDescriptionChange: (desc: string) => void
   onImageUpload: (file: File) => void
+  onDelete?: () => void
   onChainLink?: () => void
   linkMode?: 'source' | 'target'
   crossRefLabel?: string
@@ -28,6 +29,7 @@ export default function WorldNode({
   onTitleChange,
   onDescriptionChange,
   onImageUpload,
+  onDelete,
   onChainLink,
   linkMode,
   crossRefLabel = 'MAP VIEW REFERENCES',
@@ -56,15 +58,24 @@ export default function WorldNode({
       className={`bg-white rounded-xl shadow-sm transition-[width,border-color] duration-150 select-none ${borderClass} ${widthClass} ${cursorClass}`}
       onClick={onToggleExpand}
     >
-      {/* Header: title */}
-      <div className="bg-slate-100 rounded-t-xl px-3 py-2" onClick={stop}>
+      {/* Header: title + optional delete */}
+      <div className="bg-slate-100 rounded-t-xl px-3 py-2 flex items-center gap-1" onClick={stop}>
         <input
           value={title}
           onChange={e => onTitleChange(e.target.value)}
           placeholder="Editable title…"
-          className="w-full bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none nodrag nopan"
+          className="flex-1 min-w-0 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none nodrag nopan"
           onClick={stop}
         />
+        {isExpanded && onDelete && (
+          <button
+            className="shrink-0 text-slate-300 hover:text-red-400 transition-colors nodrag nopan text-xs leading-none px-0.5"
+            onClick={e => { stop(e); onDelete() }}
+            title="Delete"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Image */}

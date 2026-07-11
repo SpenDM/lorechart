@@ -34,6 +34,7 @@ export default function LocationNode({ id }: NodeProps) {
   const expandedNodeId = useAppStore(selectExpandedNodeId)
   const linking = useAppStore(selectLinking)
   const updateLocation = useAppStore(s => s.updateLocation)
+  const removeLocation = useAppStore(s => s.removeLocation)
   const beginLinking = useAppStore(s => s.beginLinking)
   const completeLinking = useAppStore(s => s.completeLinking)
   const removeCrossRef = useAppStore(s => s.removeCrossRef)
@@ -53,6 +54,12 @@ export default function LocationNode({ id }: NodeProps) {
     if (location?.image) revokeObjectURL(location.image.blobId)
     const imageRef = await fileToImageRef(file)
     updateLocation(id, { image: imageRef })
+  }
+
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${location?.title || 'this location'}"?`)) {
+      removeLocation(id)
+    }
   }
 
   if (!location) return null
@@ -100,6 +107,7 @@ export default function LocationNode({ id }: NodeProps) {
               onTitleChange={title => updateLocation(id, { title })}
               onDescriptionChange={description => updateLocation(id, { description })}
               onImageUpload={handleImageUpload}
+              onDelete={handleDelete}
               crossRefLabel="PLOT VIEW REFERENCES"
               crossRefSlot={crossRefSlot}
               crossLinkLabel="＋ link new Plot item"

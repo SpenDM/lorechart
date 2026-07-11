@@ -26,6 +26,7 @@ function PlotViewInner() {
   const projectId = useAppStore(s => s.project?.id)
   const cardIdsKey = useAppStore(s => s.project?.plot.cards.map(c => c.id).join(',') ?? '')
   const linkIdsKey = useAppStore(s => s.project?.plot.links.map(l => l.id).join(',') ?? '')
+  const hasCards = useAppStore(s => (s.project?.plot.cards.length ?? 0) > 0)
   const viewport = useAppStore(selectPlotViewport)
   const linkingFrom = useAppStore(selectLinkingFrom)
   const focusedNodeId = useAppStore(selectFocusedNodeId)
@@ -165,12 +166,17 @@ function PlotViewInner() {
       {linkingFrom && (
         <div className="absolute top-[52px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-blue-600 text-white text-sm px-5 py-2.5 rounded-full shadow-lg">
           <span>Click another card to create a relationship</span>
-          <button
-            className="underline hover:no-underline"
-            onClick={cancelSameViewLink}
-          >
-            Cancel
-          </button>
+          <button className="underline hover:no-underline" onClick={cancelSameViewLink}>Cancel</button>
+        </div>
+      )}
+
+      {/* Empty canvas hint */}
+      {!hasCards && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <div className="text-center">
+            <p className="text-slate-400 text-sm font-medium">No plot cards yet</p>
+            <p className="text-slate-400 text-xs mt-1">Click ＋ in the toolbar to add one</p>
+          </div>
         </div>
       )}
 
