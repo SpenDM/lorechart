@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Project, PlotCard, Location, RelationshipLink } from '../types/model'
+import type { Project, PlotCard, Location, RelationshipLink, Viewport } from '../types/model'
 import { SCHEMA_VERSION } from '../types/model'
 import { id as newId } from '../lib/id'
 import { fileToImageRef, revokeObjectURL } from '../lib/images'
@@ -36,8 +36,12 @@ export interface AppState {
   exportProject(): Promise<void>
   importProject(file: File): Promise<void>
 
+  // viewport
+  setPlotViewport(viewport: Viewport): void
+  setMapViewport(viewport: Viewport): void
+
   // plot mutations
-  addPlotCard(): void
+  addPlotCard(position?: { x: number; y: number }): void
   updatePlotCard(id: string, patch: Partial<PlotCard>): void
   removePlotCard(id: string): void
   addLink(source: string, target: string): void
@@ -46,7 +50,7 @@ export interface AppState {
 
   // map mutations
   setBackgroundImage(file: File): Promise<void>
-  addLocation(): void
+  addLocation(position?: { x: number; y: number }): void
   updateLocation(id: string, patch: Partial<Location>): void
   removeLocation(id: string): void
 
@@ -117,6 +121,22 @@ export const useAppStore = create<AppState>((set, get) => ({
     return dbListProjects()
   },
 
+  setPlotViewport(viewport) {
+    const { project } = get()
+    if (!project) return
+    const updated = { ...project, plot: { ...project.plot, viewport } }
+    set({ project: updated })
+    scheduleSave(updated)
+  },
+
+  setMapViewport(viewport) {
+    const { project } = get()
+    if (!project) return
+    const updated = { ...project, map: { ...project.map, viewport } }
+    set({ project: updated })
+    scheduleSave(updated)
+  },
+
   async exportProject() {
     // T7.1 — Phase 7
     console.warn('exportProject not yet implemented')
@@ -127,7 +147,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     console.warn('importProject not yet implemented')
   },
 
-  addPlotCard() {
+  addPlotCard(position) {
     const { project } = get()
     if (!project) return
     const card: PlotCard = {
@@ -135,7 +155,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       title: '',
       image: null,
       description: '',
-      position: nextCardPosition(project),
+      position: position ?? nextCardPosition(project),
       mapRefs: [],
     }
     const updated = touch({ ...project, plot: { ...project.plot, cards: [...project.plot.cards, card] } })
@@ -229,7 +249,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     scheduleSave(updated)
   },
 
-  addLocation() {
+  addLocation(position) {
     const { project } = get()
     if (!project) return
     const location: Location = {
@@ -237,7 +257,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       title: '',
       image: null,
       description: '',
-      position: nextLocationPosition(project),
+      position: position ?? nextLocationPosition(project),
       plotRefs: [],
     }
     const updated = touch({
