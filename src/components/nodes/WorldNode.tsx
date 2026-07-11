@@ -11,7 +11,7 @@ interface WorldNodeProps {
   onTitleChange: (title: string) => void
   onDescriptionChange: (desc: string) => void
   onImageUpload: (file: File) => void
-  onChainLink: () => void
+  onChainLink?: () => void
   linkMode?: 'source' | 'target'
   crossRefLabel?: string
   crossRefSlot?: ReactNode
@@ -109,19 +109,21 @@ export default function WorldNode({
         {linkMode === 'source' && (
           <span className="text-[9px] text-blue-500">linking from…</span>
         )}
-        <div className="ml-auto">
-          <button
-            className={`w-7 h-7 rounded-full flex items-center justify-center text-sm nodrag nopan ${
-              linkMode === 'source'
-                ? 'bg-blue-500 border border-blue-600 text-white'
-                : 'bg-blue-50 border border-blue-400 text-blue-600 hover:bg-blue-100'
-            }`}
-            onClick={e => { stop(e); onChainLink() }}
-            title="Link to another card"
-          >
-            🔗
-          </button>
-        </div>
+        {onChainLink && (
+          <div className="ml-auto">
+            <button
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-sm nodrag nopan ${
+                linkMode === 'source'
+                  ? 'bg-blue-500 border border-blue-600 text-white'
+                  : 'bg-blue-50 border border-blue-400 text-blue-600 hover:bg-blue-100'
+              }`}
+              onClick={e => { stop(e); onChainLink() }}
+              title="Link to another card"
+            >
+              🔗
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
